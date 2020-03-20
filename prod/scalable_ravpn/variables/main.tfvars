@@ -77,6 +77,7 @@ asa-license-throughput = "10G"
 #params:
 #availability-zone - availability-zone where you want the instances to be deployed
 #template file - it's the same as the name of the instance - refer to the files generated in step3
+#token - Please generate a "token from your Cisco Smart License account and insert it here"
 #default to private is require because there is only one default route could exist in the route table so if you want terraform to inject default route pointing towards the particular ASAv
 #then you need to change this value to true - *Keep in mind that only one instance could be acting as a default gw per availability zone/ per route table* the rest should be false
 #vpn-pool-from: Start of VPN pool range
