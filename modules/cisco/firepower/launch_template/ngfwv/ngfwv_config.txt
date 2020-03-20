@@ -1,0 +1,8 @@
+#Sensor
+{
+"AdminPassword": "${ftd_password}",
+"Hostname":      "${ftd_hostname}",
+"DeviceRegFmcIp":"${fmc_ip}",
+"RegistrationId":"${fmc_reg_key}",
+"NatId":         "${fmc_nat_id}"
+}
