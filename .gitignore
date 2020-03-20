@@ -6,6 +6,6 @@
 *.tfstate.*
 
 # .tfvars files
-*.tfvars
+#*.tfvars
 
 .DS_Store
