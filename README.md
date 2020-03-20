@@ -30,9 +30,8 @@ The list of modules will constantly grow as long as we will release more and mor
         ├── 3_asav_config
         ├── 4_asav_deployment
         ├── 5_optional_workload
-        └── variables
+        └── variables (the metadata for the resources can be found under main.tfvars file)
 ```
 
-Remote Access VPN Solution
 
 
