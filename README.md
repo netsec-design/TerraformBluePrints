@@ -4,7 +4,11 @@ This REPO will collect all the Blueprints which Cisco will release as part of th
 
 The structure of the repo is the following where the module folder will store the cloud and cisco building blocks, and the prod in this case represents a "production"environment which as part you can find the design blueprints.
 
-The first blueprint is a Scalable Remote Access VPN solution hosted in AWS.
+The following blueprints are available:
+- Scalable Remote Access VPN hosted in AWS
+
+The list of modules will constantly grow as long as we will release more and more documentation.
+
 
 ```
 ├── modules
