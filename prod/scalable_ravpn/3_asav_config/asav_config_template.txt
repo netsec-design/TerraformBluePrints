@@ -1,0 +1,104 @@
+hostname ${hostname}
+!
+license smart
+ feature tier standard
+ throughput level ${license_throughput}
+ call-home
+  source-interface outside
+license smart register idtoken ${idtoken} force
+ip local pool VPN-POOL ${vpn_pool_from}-${vpn_pool_to} mask ${vpn_pool_mask}
+access-list split standard permit ${vpc_cidr} 255.255.0.0 
+!
+username plakatos password cisco123
+username plakatos attributes
+service-type remote-access
+!
+int tengi 0/0
+ nameif outside
+ security-level 0
+ ip address dhcp setroute
+ no shut
+int tengi 0/1
+ nameif inside
+ security-level 100
+ ip address dhcp
+ no shut 
+interface management0/0
+ nameif management
+ security-level 100
+ ip address dhcp
+ no shut
+!
+!
+webvpn
+ enable outside
+ anyconnect image disk0:/anyconnect-macos-4.8.02045-webdeploy-k9.pkg 1
+ anyconnect enable
+ tunnel-group-list enable
+group-policy LAB internal
+group-policy LAB attributes
+ vpn-tunnel-protocol ssl-client ssl-clientless
+ address-pools value VPN-POOL
+ split-tunnel-policy tunnelspecified
+ split-tunnel-network-list value split
+dynamic-access-policy-record DfltAccessPolicy
+username admin nopassword privilege 15
+tunnel-group LAB type remote-access
+tunnel-group LAB general-attributes
+ default-group-policy LAB
+ address-pool VPN-POOL
+tunnel-group LAB webvpn-attributes
+ group-alias LAB-VPN enable
+!
+dns domain-lookup outside
+dns server-group DefaultDNS
+ name-server 208.67.222.222
+ name-server 208.67.220.220
+!
+same-security-traffic permit inter-interface
+same-security-traffic permit intra-interface
+!
+policy-map global_policy
+ class inspection_default
+  inspect icmp
+!
+access-list 101 extended permit ip any any 
+access-group 101 in interface outside
+access-group 101 in interface inside
+!
+object network NET-${private_subnet}
+ subnet ${private_subnet} 255.255.255.0
+ nat (inside,outside) dynamic interface
+!
+object network internal_lb
+ host ${internal_lb_ip}
+object network ext_lb
+ host ${external_lb_ip}
+object service http_svc
+ service tcp source eq www 
+!
+nat (inside,outside) source static internal_lb interface destination static interface ext_lb service http_svc http_svc
+!
+crypto key generate rsa modulus 2048
+ssh 0 0 inside
+ssh 0 0 outside
+ssh 0 0 management
+ssh timeout 30
+aaa authentication ssh console LOCAL
+username admin nopassword privilege 15
+username admin attributes
+service-type admin
+!
+name 129.6.15.28 time-a.nist.gov
+name 129.6.15.29 time-b.nist.gov
+name 129.6.15.30 time-c.nist.gov
+ntp server time-c.nist.gov
+ntp server time-b.nist.gov
+ntp server time-a.nist.gov
+icmp permit any outside
+icmp permit any inside
+icmp permit any management
+!
+
+
+
