@@ -11,7 +11,7 @@ The following blueprints are available:
 The list of modules will constantly grow as long as we will release more and more documentation.
 
 ```
-The HOWTO Guide will be released soon and linked here.
+The Reference Architecture Guide along with the Deployment Guide will be released soon and linked here.
 ```
 
 ```
