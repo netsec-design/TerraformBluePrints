@@ -83,6 +83,8 @@ asa-license-throughput = "10G"
 #vpn-pool-from: Start of VPN pool range
 #vpn-pool-to: End of VPN pool range
 #vpn-pool-mask: netmask of the VPN pool
+#weight only required for AWS R53 - leave as it is
+#attach-to-dns - only required for AWS R53 - leave as it is
 #just simply add to remove any blocks if you require multiple ASAvs
 
 asa-instances = {
@@ -94,6 +96,8 @@ asa-instances = {
         vpn-pool-from = "192.168.6.1"
         vpn-pool-to = "192.168.6.254"
         vpn-pool-mask = "255.255.255.0"
+        attach-to-dns = false
+        weight = null
         },
         ASAv02={
         availability-zone = "b"
@@ -103,6 +107,8 @@ asa-instances = {
         vpn-pool-from = "192.168.4.1"
         vpn-pool-to = "192.168.4.254"
         vpn-pool-mask = "255.255.255.0"
+        attach-to-dns = false
+        weight = null
         }
 }
 

@@ -50,6 +50,7 @@ variable "key_name" {
 variable "lb_tg_name" {
 
     type = map
+    default = {}
 
 }
 
@@ -59,5 +60,27 @@ variable "asa_instances" {
     template-file = string
     token = string
     default-to-private = bool
+    attach-to-dns = bool
+    weight = number
   }))
+}
+
+variable "dns_name" {
+
+    type = string
+    default = null
+}
+
+variable "vpn_subdomain" {
+
+    type = string
+    default = null
+
+}
+
+variable "r53_health_check_port" {
+
+    type = string
+    default = null
+
 }

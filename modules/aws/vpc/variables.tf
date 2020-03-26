@@ -5,6 +5,7 @@
 
 variable "main_cidr" {
   description = "The CIDR list of the whole cloud network (for example: 10.0.0.0/8)"
+  default = " "
 
 }
 

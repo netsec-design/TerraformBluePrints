@@ -52,6 +52,12 @@ data "aws_route_table" "route_table_inside" {
   subnet_id = lookup(data.aws_subnet.subnet_inside, lookup(lookup(var.asa_instances, each.key),"availability-zone")).id
 }
 
+data "aws_route53_zone" "r53" {
+  count = var.dns_name == null ? 0: 1
+  name         = var.dns_name
+  private_zone = false
+}
+
 locals  {
 
 flat_lb = flatten([for asa_key, asa in var.asa_instances: [
@@ -68,7 +74,7 @@ flat_lb = flatten([for asa_key, asa in var.asa_instances: [
 }
 
 resource "aws_security_group" "SG-Allow-All-ASAv" {
-  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa}
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key}
   name        = "SG-Allow-All-ASAv-${each.key}"
   description = "Security Group to allow all traffic"
   vpc_id = data.aws_vpc.vpc.id
@@ -93,7 +99,7 @@ resource "aws_security_group" "SG-Allow-All-ASAv" {
 }
 
 resource "aws_network_interface" "ASAv-Management" {
-  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa}
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key}
   subnet_id       = lookup(data.aws_subnet.subnet_mgmt, lookup(lookup(var.asa_instances, each.key),"availability-zone")).id
   security_groups = ["${lookup(aws_security_group.SG-Allow-All-ASAv, each.key).id}"]
   source_dest_check = false
@@ -102,7 +108,7 @@ resource "aws_network_interface" "ASAv-Management" {
   }
 }
 resource "aws_network_interface" "ASAv-Outside" {
-  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa}
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key}
   subnet_id       = lookup(data.aws_subnet.subnet_outside, lookup(lookup(var.asa_instances, each.key),"availability-zone")).id
   security_groups = ["${lookup(aws_security_group.SG-Allow-All-ASAv, each.key).id}"]
   source_dest_check = false
@@ -111,7 +117,7 @@ resource "aws_network_interface" "ASAv-Outside" {
   }
 }
 resource "aws_network_interface" "ASAv-Inside" {
-  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa}
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key}
   subnet_id       = lookup(data.aws_subnet.subnet_inside, lookup(lookup(var.asa_instances, each.key),"availability-zone")).id
   security_groups = ["${lookup(aws_security_group.SG-Allow-All-ASAv, each.key).id}"]
   source_dest_check = false
@@ -121,7 +127,7 @@ resource "aws_network_interface" "ASAv-Inside" {
 }
 
 resource "aws_instance" "ASAv" {
-  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa}
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key}
   ami           = data.aws_ami.cisco-asav-lookup.id
   instance_type = var.instance_size
   key_name = var.key_name
@@ -152,7 +158,7 @@ resource "aws_instance" "ASAv" {
 
 resource "aws_eip" "instance-public-ip" {
 
-  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa}
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key}
   network_interface = lookup(aws_network_interface.ASAv-Outside, each.key).id
   vpc      = true
 
@@ -170,8 +176,41 @@ resource "aws_alb_target_group_attachment" "ASAv_attach_tg" {
 
 
 resource "aws_route" "private_default_to_asa" {
-  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa if lookup(var.asa_instances, asa_key).default-to-private == true }
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key if lookup(var.asa_instances, asa_key).default-to-private == true }
   route_table_id            = lookup(data.aws_route_table.route_table_inside, each.key).id
   destination_cidr_block    = "0.0.0.0/0"
   network_interface_id = lookup(aws_network_interface.ASAv-Inside, each.key).id
+}
+
+resource "aws_route53_health_check" "hc" {
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key if lookup(var.asa_instances, asa_key).attach-to-dns == true }
+  failure_threshold = "5"
+  ip_address              = lookup(aws_eip.instance-public-ip, each.key).public_ip
+  fqdn                    = lookup(aws_eip.instance-public-ip, each.key).public_dns
+  port              = var.r53_health_check_port
+  request_interval  = "30"
+  resource_path     = "/"
+  search_string     = "+CSCOE+"
+  type              = "HTTPS_STR_MATCH"
+  measure_latency = true
+
+    tags = {
+    "Name" = each.key
+  }
+}
+
+resource "aws_route53_record" "vpn_record" {
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key if lookup(var.asa_instances, asa_key).attach-to-dns == true }
+  zone_id = data.aws_route53_zone.r53[0].zone_id
+  name    = var.vpn_subdomain
+  type    = "A"
+  ttl     = "5"
+  health_check_id = lookup(aws_route53_health_check.hc, each.key).id
+
+  weighted_routing_policy {
+    weight = lookup(lookup(var.asa_instances, each.key),"weight")
+  }
+
+  set_identifier = each.key
+  records        = [lookup(aws_eip.instance-public-ip, each.key).public_ip]
 }
