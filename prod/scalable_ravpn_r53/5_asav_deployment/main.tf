@@ -5,7 +5,7 @@ provider "aws" {
  
 module "ASAv_Instances" {
 
-source = "../../../modules/cisco/firepower/asav_enhanced"
+source = "../../../modules/cisco/asav_enhanced"
 
 vpc_name = var.vpc1-name
 tgw_name = var.tgw-name
