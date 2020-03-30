@@ -15,7 +15,7 @@ The Reference Architecture Guide along with the Deployment Guide will be release
 ```
 
 ```
-├── modules
+├── modules (abstract Terraform modules)
 │   ├── aws
 │   │   ├── ec2
 │   │   │   └── instance
@@ -24,25 +24,28 @@ The Reference Architecture Guide along with the Deployment Guide will be release
 │   │   ├── r53
 │   │   ├── tgw_associate
 │   │   ├── tgw_propagate
+│   │   ├── tgw_vpn_attachment
 │   │   └── vpc
 │   └── cisco
 │       └── asav_enhanced
-└── prod
-    ├── scalable_ravpn
+└── prod (Representative environments)
+    ├── scalable_ravpn (NLB Implementation)
     │   ├── 0_aws_ssh_key
     │   ├── 1_aws_network
     │   ├── 2_aws_lb_layer
     │   ├── 3_asav_config
     │   ├── 4_asav_deployment
     │   ├── 5_optional_workload
-    │   └── variables (the metadata for the resources can be found under main.tfvars file)
-    └── scalable_ravpn_r53
+    │   └── variables (metadata can be found in main.tfvars in this folder)
+    └── scalable_ravpn_r53 (Route 53 Implementation - Preferred)
         ├── 0_aws_ssh_key
         ├── 1_aws_network
-        ├── 2_asav_config
-        ├── 3_aws_r53_frontend
-        ├── 4_asav_deployment
-        └── variables (the metadata for the resources can be found under main.tfvars file)
+        ├── 2_tgw_associations
+        ├── 3_asav_config
+        ├── 4_aws_r53_frontend
+        ├── 5_asav_deployment
+        ├── 6_s2s_vpn
+        └── variables (metadata can be found in main.tfvars in this folder)
 ```
 
 
