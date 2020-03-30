@@ -96,3 +96,9 @@ variable "igw_name" {
   type = string
   default = "Test"
 }
+
+variable "on_prem_cidr" {
+
+  type = string
+  default = null
+}

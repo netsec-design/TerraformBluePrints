@@ -1,5 +1,4 @@
 variable "aws-region"  {}
-variable "main-cidr" {}
 variable "vpc1-name"  {}
 variable "vpc1-cidr"  {}
 variable "public-subnet-a"  {}
@@ -31,6 +30,7 @@ variable "nlb2-internal" {}
 variable "nlb2-tg-group" {}
 variable "nlb2-cross-zone" {}
 variable "ami-owner" {}
+variable "asa-ami-id" {}
 variable "asav-instance-size" {}
 variable "asa-license-throughput" {}
 variable "asa-tg-name" {}

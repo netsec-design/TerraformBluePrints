@@ -20,19 +20,9 @@ variable "rt3-postfix"  {}
 variable "rt4-postfix"  {}
 variable "ssh-key-name"  {}
 variable "ssh-key" {}
-variable "nlb1-name" {}
-variable "nlb1-internal" {}
-variable "nlb1-cross-zone" {}
-variable "nlb1-tg-config" {}
-variable "nlb1-fw-config" {}
-variable "nlb2-name" {}
-variable "nlb2-internal" {}
-variable "nlb2-cross-zone" {}
-variable "nlb2-tg-group" {}
 variable "asav-instance-size" {}
 variable "asa-ami-id" {}
 variable "asa-instances" {}
-variable "asa-tg-name" {}
 variable "asa-license-throughput" {}
 variable "ami-owner" {}
 variable "ec2-instance-size" {}
@@ -61,3 +51,6 @@ variable "instance04-tg-attach" {}
 variable "instance04-public-ip" {}
 variable "instance04-from-to-port" {}
 variable "instance04-proto" {}
+variable "on-prem-cidr" {}
+variable "on-prem-pool" {}
+variable "on-prem-netmask" {}

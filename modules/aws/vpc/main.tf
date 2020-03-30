@@ -101,6 +101,11 @@ resource "aws_route_table" "rt_priv_tgw" {
     gateway_id = aws_ec2_transit_gateway.tgw[0].id
   }
 
+  route {
+    cidr_block = var.on_prem_cidr
+    gateway_id = aws_ec2_transit_gateway.tgw[0].id
+  }
+
   tags = {
     Name = "${each.value.name}"
   }
@@ -111,6 +116,7 @@ resource "aws_route_table" "rt_priv_tgw" {
 resource "aws_route_table" "rt_priv" {
   vpc_id = var.subnet_vpc_id
   for_each = {for rt in var.route_tables:  rt.name => rt if rt.rtype == "priv"}
+ 
 
   tags = {
     Name = "${each.value.name}"
@@ -135,7 +141,8 @@ resource "aws_route_table" "rt_mgmt" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = var.tgw_attached == false ? aws_internet_gateway.igw.id : aws_ec2_transit_gateway.tgw[0].id
+    gateway_id = aws_internet_gateway.igw.id
+    #gateway_id = var.tgw_attached == false ? aws_internet_gateway.igw.id : aws_ec2_transit_gateway.tgw[0].id
   }
 
   tags = {
@@ -168,7 +175,7 @@ resource "aws_route_table_association" "as_priv_tgw" {
 
   count = length([for network in var.networks: null if network.ntype == "priv_tgw"])
 
-  route_table_id = values(aws_route_table.rt_priv_tgw)[0].id
+  route_table_id = values(aws_route_table.rt_priv_tgw)[count.index].id
   subnet_id      = values(aws_subnet.private_subnet_tgw)[count.index].id
 
 }
@@ -203,6 +210,8 @@ resource "aws_internet_gateway" "igw" {
 resource aws_ec2_transit_gateway "tgw" {
   count = var.tgw_count
   description = var.tgw_name
+  default_route_table_association = "disable"
+  default_route_table_propagation = "disable"
 
   tags = {
     Name = "${var.tgw_name}"
@@ -229,7 +238,7 @@ resource "aws_ec2_transit_gateway_route_table" "tr_rt" {
   transit_gateway_id = var.tgw_id == null ? aws_ec2_transit_gateway.tgw[0].id : var.tgw_id
 
     tags = {
-      Name = "TGW-${var.tgw_route_tables[count.index].name}"
+      Name = "${var.tgw_route_tables[count.index].name}"
       Type = "${var.tgw_route_tables[count.index].type}"
   }
 }

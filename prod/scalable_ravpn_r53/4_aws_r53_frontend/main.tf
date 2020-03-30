@@ -3,7 +3,7 @@ provider "aws" {
 } 
 
 
-module "AWS_R53" {
+module "ASAv_Instances" {
 
 source = "../../../modules/aws/r53"
 

@@ -20,7 +20,6 @@ module "vpc1" {
 
 source = "../../../modules/aws/vpc"
 
-main_cidr = var.main-cidr
 vpc_name = var.vpc1-name
 vpc_cidr = var.vpc1-cidr
 vpc_type = local.vpc1_type

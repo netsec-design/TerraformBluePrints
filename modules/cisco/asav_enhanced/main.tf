@@ -18,6 +18,45 @@ data "aws_vpc" "vpc" {
   }
 }
 
+data "aws_ec2_transit_gateway" "tgw" {
+  count = var.tgw_name == null ? 0: 1
+  filter {
+    name   = "tag:Name"
+    values = [var.tgw_name]
+  }
+    filter {
+    name   = "state"
+    values = ["available"]
+  }
+}
+
+data "aws_ec2_transit_gateway_vpc_attachment" "attach" {
+count = var.tgw_name == null ? 0: 1
+    filter{
+        name = "transit-gateway-id"
+        values = ["${data.aws_ec2_transit_gateway.tgw[0].id}"]
+    }
+
+    filter{
+        name = "tag:Name"
+        values = ["TGW-${var.vpc_name}"]
+    }      
+}
+
+data "aws_ec2_transit_gateway_route_table" "tgw_rt" {
+count = var.tgw_name == null ? 0: 1
+    filter{
+        name = "transit-gateway-id"
+        values = ["${data.aws_ec2_transit_gateway.tgw[0].id}"]
+    }
+
+    filter{
+        name = "tag:Name"
+        values = ["${var.rt_name}"]
+    }   
+    
+}
+
 data "aws_subnet" "subnet_mgmt" {
   for_each = var.subnet_mgmt_name
   filter{   
@@ -42,6 +81,14 @@ data "aws_subnet" "subnet_mgmt" {
   }
  }
 
+ data "aws_subnet" "subnet_tgw" {
+  for_each = var.unique_vpn_pools == true ? var.subnet_tgw_name : {}
+  filter{   
+   name = "tag:Name"
+   values = [lookup(var.subnet_tgw_name, each.key)]
+  }
+ }
+
 data "aws_lb_target_group" "nlb_target_grp" {
   for_each = var.lb_tg_name
         name = lookup(var.lb_tg_name, each.key)
@@ -51,6 +98,13 @@ data "aws_route_table" "route_table_inside" {
   for_each = var.asa_instances
   subnet_id = lookup(data.aws_subnet.subnet_inside, lookup(lookup(var.asa_instances, each.key),"availability-zone")).id
 }
+
+data "aws_route_table" "route_table_tgw" {
+  for_each = var.unique_vpn_pools == true ? var.asa_instances : {}
+  subnet_id = lookup(data.aws_subnet.subnet_tgw, lookup(lookup(var.asa_instances, each.key),"availability-zone")).id
+}
+
+
 
 data "aws_route53_zone" "r53" {
   count = var.dns_name == null ? 0: 1
@@ -176,11 +230,19 @@ resource "aws_alb_target_group_attachment" "ASAv_attach_tg" {
 
 
 resource "aws_route" "private_default_to_asa" {
-  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key if lookup(var.asa_instances, asa_key).default-to-private == true }
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa if lookup(var.asa_instances, asa_key).default-to-private == true }
   route_table_id            = lookup(data.aws_route_table.route_table_inside, each.key).id
   destination_cidr_block    = "0.0.0.0/0"
   network_interface_id = lookup(aws_network_interface.ASAv-Inside, each.key).id
 }
+
+resource "aws_route" "vpc_tgw_vpn_to_eni" {
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key if var.unique_vpn_pools == true }
+  route_table_id            = lookup(data.aws_route_table.route_table_tgw, each.key).id
+  destination_cidr_block    = lookup(lookup(var.asa_instances, each.key),"vpn-pool-cidr")
+  network_interface_id = lookup(aws_network_interface.ASAv-Inside, each.key).id
+}
+
 
 resource "aws_route53_health_check" "hc" {
   for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key if lookup(var.asa_instances, asa_key).attach-to-dns == true }
@@ -213,4 +275,12 @@ resource "aws_route53_record" "vpn_record" {
 
   set_identifier = each.key
   records        = [lookup(aws_eip.instance-public-ip, each.key).public_ip]
+}
+
+
+resource "aws_ec2_transit_gateway_route" "tgw_vpn_pools" {
+  for_each = {for asa_key, asa in var.asa_instances: asa_key => asa_key if var.unique_vpn_pools == true}
+  destination_cidr_block         = lookup(lookup(var.asa_instances, each.key),"vpn-pool-cidr")
+  transit_gateway_attachment_id  = data.aws_ec2_transit_gateway_vpc_attachment.attach[0].id
+  transit_gateway_route_table_id = data.aws_ec2_transit_gateway_route_table.tgw_rt[0].id
 }

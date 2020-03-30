@@ -16,6 +16,12 @@ variable "vpc_name" {
     
 }
 
+variable "unique_vpn_pools" {
+
+    type = bool
+    default = false
+}
+
 variable "subnet_mgmt_name" {
 
     type = map
@@ -33,6 +39,12 @@ variable "subnet_inside_name" {
 
     type = map
     
+}
+
+variable "subnet_tgw_name" {
+
+    type = map
+    default = null
 }
 
 variable "instance_size" {
@@ -62,6 +74,7 @@ variable "asa_instances" {
     default-to-private = bool
     attach-to-dns = bool
     weight = number
+    vpn-pool-cidr = string
   }))
 }
 
@@ -79,6 +92,19 @@ variable "vpn_subdomain" {
 }
 
 variable "r53_health_check_port" {
+
+    type = string
+    default = null
+
+}
+
+variable "tgw_name" {
+
+    type = string
+    default = null
+}
+
+variable "rt_name" {
 
     type = string
     default = null

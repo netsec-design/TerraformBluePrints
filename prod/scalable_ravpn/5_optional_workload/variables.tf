@@ -1,5 +1,4 @@
 variable "aws-region"  {}
-variable "main-cidr" {}
 variable "vpc1-name"  {}
 variable "vpc1-cidr"  {}
 variable "public-subnet-a"  {}

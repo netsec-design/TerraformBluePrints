@@ -9,6 +9,11 @@ asav_names = flatten([for asa_key, asa in var.asa-instances: [{
     name = asa_key
 }]])
 
+  vpc_private_subnets = {
+      a = var.private-cidr-a,
+      b = var.private-cidr-b
+  }
+
 }
 
 #config file creation
@@ -24,6 +29,10 @@ template = "${file("asav_config_template.txt")}"
   vpn_pool_to = "${lookup(lookup(var.asa-instances, each.key),"vpn-pool-to")}"
   vpn_pool_mask =  "${lookup(lookup(var.asa-instances, each.key),"vpn-pool-mask")}"
   vpc_cidr = replace(var.vpc1-cidr, "//.*/", "")
+  on_prem_cidr = replace(var.on-prem-cidr, "//.*/", "")
+  on_prem_pool = var.on-prem-pool
+  on_prem_netmask = var.on-prem-netmask
+  private_subnet_gw = replace(lookup(local.vpc_private_subnets,each.value.availability-zone), "/.0/.*/", ".1")
   }
 }
 

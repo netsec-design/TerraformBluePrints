@@ -3,7 +3,7 @@ data "aws_region" "current" {}
 data "aws_ec2_transit_gateway" "tgw" {
   filter {
     name   = "tag:Name"
-    values = ["${var.tgw_name}"]
+    values = [var.tgw_name]
   }
     filter {
     name   = "state"

@@ -8,6 +8,7 @@ license smart
 license smart register idtoken ${idtoken} force
 ip local pool VPN-POOL ${vpn_pool_from}-${vpn_pool_to} mask ${vpn_pool_mask}
 access-list split standard permit ${vpc_cidr} 255.255.0.0 
+access-list split standard permit ${on_prem_cidr} ${on_prem_netmask} 
 !
 username plakatos password cisco123
 username plakatos attributes
@@ -57,6 +58,8 @@ dns server-group DefaultDNS
 !
 same-security-traffic permit inter-interface
 same-security-traffic permit intra-interface
+!
+route inside ${on_prem_pool} ${on_prem_netmask} ${private_subnet_gw}
 !
 policy-map global_policy
  class inspection_default

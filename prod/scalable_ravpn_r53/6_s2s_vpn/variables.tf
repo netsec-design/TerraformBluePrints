@@ -7,6 +7,8 @@ variable "private-subnet-a"  {}
 variable "private-subnet-b"  {}
 variable "mgmt-subnet-a"  {}
 variable "mgmt-subnet-b"  {}
+variable "tgw-subnet-a"  {}
+variable "tgw-subnet-b"  {}
 variable "public-cidr-a"  {}
 variable "public-cidr-b"  {}
 variable "private-cidr-a"  {}
@@ -14,6 +16,8 @@ variable "private-cidr-b"  {}
 variable "mgmt-cidr-a"  {}
 variable "mgmt-cidr-b"  {}
 variable "igw-name"  {}
+variable "tgw-name" {}
+variable "tgw-rt1-name" {}
 variable "rt1-postfix"  {}
 variable "rt2-postfix"  {}
 variable "rt3-postfix"  {}
@@ -54,3 +58,8 @@ variable "instance04-proto" {}
 variable "dns-name" {}
 variable "vpn-sub-domain" {}
 variable "r53-health-check-port" {}
+variable "asa-unique-vpn-pools" {}
+variable "s2svpn-bgp-asn" {}
+variable "s2svpn-endpoint-ip" {}
+variable "on-prem-cidr" {}
+variable "s2s-gw-name" {}

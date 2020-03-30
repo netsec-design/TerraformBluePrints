@@ -1,13 +1,13 @@
-# SSH Key Variables
+#global 
 aws-region = "us-east-1"
-ssh-key-name =  "aws-cloudedge"
 
-#needs to be flled out
-ssh-key =  ""
+# SSH Key Variables
+ssh-key-name =  "aws-cloudedge"
+ssh-key =  "   " #To be filled out
+
 
 #VPC Parameters
 vpc1-name = "CloudEdge_Terraform"
-main-cidr = "100.0.0.0/8"
 vpc1-cidr = "100.100.0.0/16"
 public-subnet-a = "CloudEdge-Pub-A"
 public-subnet-b = "CloudEdge-Pub-B"
@@ -51,7 +51,6 @@ nlb1-fw-config = {
     443 = "TCP"
 }
 
-
 #Params for the internal load-balancer are slightly different as for the workloads module does not support my enhanced LB layed module yet.
 #Not a big deal, but it's a bit more static config in this case - doesn't have impact on the RAVPN front-end
 
@@ -60,6 +59,8 @@ nlb2-name = "NLB02Internal"
 nlb2-internal = "true"
 nlb2-tg-group = "TG02WWWInternal"
 nlb2-cross-zone = true
+
+
 
 #ASAv General Parameters
 ami-owner = "679593333241"
@@ -77,22 +78,19 @@ asa-license-throughput = "10G"
 #params:
 #availability-zone - availability-zone where you want the instances to be deployed
 #template file - it's the same as the name of the instance - refer to the files generated in step3
-#token - Please generate a "token from your Cisco Smart License account and insert it here"
 #default to private is require because there is only one default route could exist in the route table so if you want terraform to inject default route pointing towards the particular ASAv
 #then you need to change this value to true - *Keep in mind that only one instance could be acting as a default gw per availability zone/ per route table* the rest should be false
 #vpn-pool-from: Start of VPN pool range
 #vpn-pool-to: End of VPN pool range
 #vpn-pool-mask: netmask of the VPN pool
-#weight only required for AWS R53 - leave as it is
-#attach-to-dns - only required for AWS R53 - leave as it is
-#just simply add to remove any blocks if you require multiple ASAvs
 
 asa-instances = {
         ASAv01={
         availability-zone = "a"
         template-file = "../3_asav_config/ASAv01.txt"
-        token = ""
+        token = " " #To be filled out
         default-to-private = true
+        vpn-pool-cidr = "192.168.6.0/24"
         vpn-pool-from = "192.168.6.1"
         vpn-pool-to = "192.168.6.254"
         vpn-pool-mask = "255.255.255.0"
@@ -102,14 +100,27 @@ asa-instances = {
         ASAv02={
         availability-zone = "b"
         template-file = "../3_asav_config/ASAv02.txt"
-        token = ""
+        token = " " #to be filled
         default-to-private = true
+        vpn-pool-cidr = "192.168.4.0/24"
         vpn-pool-from = "192.168.4.1"
         vpn-pool-to = "192.168.4.254"
         vpn-pool-mask = "255.255.255.0"
         attach-to-dns = false
         weight = null
-        }
+        }/*,
+        ASAv03={
+        availability-zone = "a"
+        template-file = "../3_asav_config/ASAv03.txt"
+        token = " " #to be filled
+        default-to-private = false
+        vpn-pool-cidr = "192.168.5.0/24"
+        vpn-pool-from = "192.168.5.1"
+        vpn-pool-to = "192.168.5.254"
+        vpn-pool-mask = "255.255.255.0"
+        attach-to-dns = false
+        weight = null
+        }*/
 }
 
 
