@@ -7,6 +7,7 @@ The structure of the repo is the following where the module folder will store th
 The following blueprints are available:
 - Scalable Remote Access VPN with DNS-Loadbalancing utilizing AWS Route 53 Service (preferred/recommended)
 - Scalable Remote Access VPN with NLB
+- Very Simple AZURE ASAv deployment with 2nic (static template - modularized will come soon)
 
 
 The list of modules will constantly grow as long as we will release more and more documentation.
