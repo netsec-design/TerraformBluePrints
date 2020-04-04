@@ -8,11 +8,17 @@ The following blueprints are available:
 - Scalable Remote Access VPN with DNS-Loadbalancing utilizing AWS Route 53 Service (preferred/recommended)
 - Scalable Remote Access VPN with NLB
 
+
 The list of modules will constantly grow as long as we will release more and more documentation.
 
-```
-The Reference Architecture Guide along with the Deployment Guide will be released soon and linked here.
-```
+#### Cisco Firewall Scalable VPN Solution in AWS (PDF) - Reference Architecture Guide
+##### [SalesConnect Link](https://salesconnect.cisco.com/open.html?c=6d4a925e-0970-4263-af9b-d47f00a9066c)
+ 
+#### Cisco Firewall Scalable VPN Solution in AWS (PPT) - Short Presentation
+##### [SalesConnect Link](https://salesconnect.cisco.com/open.html?c=42ce8ec2-1c73-4c3c-aacc-bc793751a3b4)
+
+Both links are public material, only need your CCO ID to access to it.
+
 
 ```
 ├── modules (abstract Terraform modules)
