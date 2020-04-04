@@ -1,0 +1,78 @@
+hostname ASAv01
+!
+ip local pool VPN-POOL 172.16.1.1-172.16.1.254 mask 255.255.255.0
+access-list split standard permit 10.0.0.0 255.255.0.0 
+access-list split standard permit 192.168.128.0 255.255.255.0 
+!
+username plakatos password cisco123
+username plakatos attributes
+service-type remote-access
+!
+int management 0/0
+ nameif outside
+ security-level 0
+int gi 0/0
+ nameif inside
+ security-level 100
+ ip address dhcp
+ no shut 
+!
+!
+webvpn
+ enable outside
+ anyconnect image disk0:/anyconnect-macos-4.8.02045-webdeploy-k9.pkg 1
+ anyconnect enable
+ tunnel-group-list enable
+group-policy LAB internal
+group-policy LAB attributes
+ vpn-tunnel-protocol ssl-client ssl-clientless
+ address-pools value VPN-POOL
+ split-tunnel-policy tunnelspecified
+ split-tunnel-network-list value split
+dynamic-access-policy-record DfltAccessPolicy
+username admin nopassword privilege 15
+tunnel-group LAB type remote-access
+tunnel-group LAB general-attributes
+ default-group-policy LAB
+ address-pool VPN-POOL
+tunnel-group LAB webvpn-attributes
+ group-alias LAB-VPN enable
+!
+dns domain-lookup outside
+dns server-group DefaultDNS
+ name-server 208.67.222.222
+ name-server 208.67.220.220
+!
+same-security-traffic permit inter-interface
+same-security-traffic permit intra-interface
+!
+policy-map global_policy
+ class inspection_default
+  inspect icmp
+!
+access-list 101 extended permit ip any any 
+access-group 101 in interface outside
+access-group 101 in interface inside
+!
+ssh 0 0 inside
+ssh 0 0 outside
+ssh timeout 30
+!
+name 129.6.15.28 time-a.nist.gov
+name 129.6.15.29 time-b.nist.gov
+name 129.6.15.30 time-c.nist.gov
+ntp server time-c.nist.gov
+ntp server time-b.nist.gov
+ntp server time-a.nist.gov
+icmp permit any outside
+icmp permit any inside
+!
+license smart
+ feature tier standard
+ throughput level 10G
+ call-home
+  source-interface outside
+license smart register idtoken ##ADDTOKEN## force
+!
+
+
